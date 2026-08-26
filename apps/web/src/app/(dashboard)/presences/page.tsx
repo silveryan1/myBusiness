@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Profile { id: string; prenom: string; nom: string; }
-interface Session { id: string; titre: string | null; date_debut: string; formation: { titre: string } | null; }
+interface Session { id: string; titre: string | null; date_debut: string; formation: { titre: string } | { titre: string }[] | null; }
 interface Presence { etudiant_id: string; status: string; commentaire: string; }
 
 const statusOptions = [

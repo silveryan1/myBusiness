@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Plus, BookOpen, Clock, Tag } from 'lucide-react';
 
 export default async function FormationsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData.user?.id;
 

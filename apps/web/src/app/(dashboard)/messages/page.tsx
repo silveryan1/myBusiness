@@ -60,13 +60,14 @@ export default function MessagesPage() {
     if (!selectedContact || !currentUserId) return;
 
     const supabase = createClient();
+    const contact = selectedContact;
 
     async function loadMessages() {
       const { data } = await supabase
         .from("messages")
         .select("*, sender:profiles!messages_sender_id_fkey(prenom, nom)")
         .or(
-          `and(sender_id.eq.${currentUserId},receiver_id.eq.${selectedContact.id}),and(sender_id.eq.${selectedContact.id},receiver_id.eq.${currentUserId})`
+          `and(sender_id.eq.${currentUserId},receiver_id.eq.${contact.id}),and(sender_id.eq.${contact.id},receiver_id.eq.${currentUserId})`
         )
         .order("created_at");
       setMessages(data || []);
