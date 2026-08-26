@@ -146,7 +146,7 @@ export default function PresencesPage() {
               <option value="">Sélectionner une session</option>
               {sessions.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.formation?.titre || s.titre || "Session"} —{" "}
+                  {(Array.isArray(s.formation) ? s.formation[0]?.titre : s.formation?.titre) || s.titre || "Session"} —{" "}
                   {new Date(s.date_debut).toLocaleDateString("fr-FR")}
                 </option>
               ))}
