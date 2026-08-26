@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LE BISTROT LYONNAIS - Restaurant à Yaoundé</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header / Navigation -->
+    <header class="site-header">
+        <div class="container nav-container">
+            <a href="#" class="brand-logo">
+                <!-- Emplacement Logo -->
+                <div class="logo-placeholder">
+                    <span class="logo-icon">🍷</span>
+                    <div class="logo-text">
+                        <span class="logo-title">LE BISTROT</span>
+                        <span class="logo-subtitle">LYONNAIS</span>
+                    </div>
+                </div>
+            </a>
+            
+            <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu">
+                <span class="hamburger"></span>
+            </button>
+
+            <nav class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="#accueil" class="nav-link">Accueil</a></li>
+                    <li><a href="#a-propos" class="nav-link">À propos</a></li>
+                    <li><a href="#services" class="nav-link">Notre Restaurant</a></li>
+                    <li><a href="#contact" class="nav-link">Contact & Accès</a></li>
+                </ul>
+                <div class="nav-cta-mobile">
+                    <a href="tel:+237690891052" class="btn btn-sm btn-primary">690891052</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Section Hero -->
+    <section id="accueil" class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <span class="badge-tag">Restaurant & Convivialité</span>
+            <h1 class="hero-title">LE BISTROT LYONNAIS</h1>
+            <p class="hero-subtitle">Une expérience culinaire chaleureuse et authentique au cœur du Quartier Koulouba à Yaoundé.</p>
+            
+            <div class="hero-actions">
+                <a href="tel:+237690891052" class="btn btn-call">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <span>690891052</span>
+                </a>
+                <a href="https://wa.me/237683054990" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    <span>WhatsApp: 683054990</span>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Quartier+Koulouba,+Yaounde,+Cameroun" target="_blank" rel="noopener noreferrer" class="btn btn-map">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>Voir l'itinéraire</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section À propos -->
+    <section id="a-propos" class="section-padding">
+        <div class="container">
+            <div class="grid-2">
+                <div class="about-text">
+                    <span class="section-subtitle">Découverte</span>
+                    <h2 class="section-title">Bienvenue au Bistrot Lyonnais</h2>
+                    <p class="lead-text">Implanté dans le Quartier Koulouba à Yaoundé, LE BISTROT LYONNAIS vous accueille dans un cadre convivial dédié au plaisir de la table.</p>
+                    <p>Que ce soit pour un déjeuner d'affaires, un dîner détente ou un moment de partage entre proches, notre établissement met un point d'honneur à offrir une ambiance chaleureuse et un service attentionné au cœur de la capitale camerounaise.</p>
+                    
+                    <div class="info-box">
+                        <div class="info-item">
+                            <span class="info-icon">📍</span>
+                            <div>
+                                <strong>Localisation</strong>
+                                <p>Quartier Koulouba, Yaoundé, Cameroun</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image-wrapper">
+                    <div class="image-card">
+                        <div class="image-placeholder-large">
+                            <span>LE BISTROT LYONNAIS</span>
+                            <p>Une atmosphère unique à Yaoundé</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Services / Notre Restaurant -->
+    <section id="services" class="section-padding bg-light">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-subtitle">Nos Prestations</span>
+                <h2 class="section-title">Ce que vous propose LE BISTROT LYONNAIS</h2>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🍽️</div>
+                    <h3>Restauration sur Place</h3>
+                    <p>Profitez d'un cadre agréable et soigneusement aménagé pour déguster vos repas en toute tranquillité.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🥂</div>
+                    <h3>Accueil & Événements</h3>
+                    <p>Un lieu adapté pour vos rencontres professionnelles, vos repas de groupe ou vos célébrations en famille.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📞</div>
+                    <h3>Réservations</h3>
+                    <p>Contactez-nous directement par téléphone ou WhatsApp pour réserver votre table à l'avance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Contact & Localisation -->
+    <section id="contact" class="section-padding">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-subtitle">Nous Trouver & Nous Contacter</span>
+                <h2 class="section-title">Informations Pratiques</h2>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-card main-contact">
+                    <h3>Coordonnées</h3>
+                    <p class="contact-intro">Pour toute demande d'information, réservation ou renseignement sur nos horaires, n'hésitez pas à nous joindre :</p>
+                    
+                    <ul class="contact-list">
+                        <li>
+                            <span class="contact-icon-wrapper">📍</span>
+                            <div>
+                                <strong>Adresse :</strong>
+                                <p>Quartier Koulouba, Yaoundé, Cameroun</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="contact-icon-wrapper">📞</span>
+                            <div>
+                                <strong>Téléphone direct :</strong>
+                                <p><a href="tel:+237690891052" class="contact-link">690891052</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="contact-icon-wrapper">💬</span>
+                            <div>
+                                <strong>WhatsApp :</strong>
+                                <p><a href="https://wa.me/237683054990" target="_blank" rel="noopener noreferrer" class="contact-link">WhatsApp: 683054990</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="contact-icon-wrapper">🕒</span>
+                            <div>
+                                <strong>Horaires :</strong>
+                                <p>Contactez-nous directement par téléphone ou WhatsApp pour connaître les horaires d'ouverture actualisés.</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="contact-buttons-group">
+                        <a href="tel:+237690891052" class="btn btn-call btn-block">Appeler le 690891052</a>
+                        <a href="https://wa.me/237683054990" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-block">WhatsApp: 683054990</a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Quartier+Koulouba,+Yaounde,+Cameroun" target="_blank" rel="noopener noreferrer" class="btn btn-map btn-block">Voir l'itinéraire sur Google Maps</a>
+                    </div>
+                </div>
+
+                <div class="contact-card map-card">
+                    <h3>Localisation</h3>
+                    <div class="map-placeholder">
+                        <div class="map-content">
+                            <span class="map-pin">📍</span>
+                            <h4>LE BISTROT LYONNAIS</h4>
+                            <p>Quartier Koulouba, Yaoundé</p>
+                            <a href="https://www.google.com/maps/search/?api=1&query=Quartier+Koulouba,+Yaounde,+Cameroun" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-map">Ouvrir dans Google Maps</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo-placeholder text-light">
+                        <span class="logo-icon">🍷</span>
+                        <div class="logo-text">
+                            <span class="logo-title">LE BISTROT</span>
+                            <span class="logo-subtitle">LYONNAIS</span>
+                        </div>
+                    </div>
+                    <p>Restaurant convivial au Quartier Koulouba, Yaoundé, Cameroun.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="#accueil">Accueil</a></li>
+                        <li><a href="#a-propos">À propos</a></li>
+                        <li><a href="#services">Notre Restaurant</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-contact">
+                    <h4>Contact Direct</h4>
+                    <p>Tél : <a href="tel:+237690891052">690891052</a></p>
+                    <p><a href="https://wa.me/237683054990" target="_blank" rel="noopener noreferrer">WhatsApp: 683054990</a></p>
+                    <p>Quartier Koulouba, Yaoundé</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; LE BISTROT LYONNAIS - Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

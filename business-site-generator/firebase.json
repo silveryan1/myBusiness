@@ -1,0 +1,11 @@
+﻿{
+  "hosting": {
+    "site": "ys-cm-oasis-bar-restaurant",
+    "public": "generated/oasis-bar-restaurant",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

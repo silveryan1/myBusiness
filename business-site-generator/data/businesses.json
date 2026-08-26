@@ -1,0 +1,102 @@
+[
+  {
+    "id": "1",
+    "name": "LE BARRY",
+    "address": "Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Restaurant, Espace VIP, Bar, Hôtel",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "2",
+    "name": "LE BISTROT LYONNAIS",
+    "address": "Quartier Koulouba, Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Restaurant",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "3",
+    "name": "COMPLEXE LA RÉFÉRENCE",
+    "address": "Awae, Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Restaurant",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "4",
+    "name": "OASIS BAR RESTAURANT",
+    "address": "Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Bar-Restaurant",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "5",
+    "name": "237immobilier",
+    "address": "Nouvelle route Mimboman, Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Agence immobilière",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "6",
+    "name": "ACMA IMMOBILIER",
+    "address": "Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Gestion immobilière",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "7",
+    "name": "AETERNUS IMMO",
+    "address": "Bata Nlongkak, Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Agence immobilière",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "8",
+    "name": "SCI ABBAS",
+    "address": "Nouvelle route Bastos, Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Promoteur immobilier",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "9",
+    "name": "Dalya's Beauty Bar",
+    "address": "Biyem-Assi, Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Institut de beauté, Onglerie",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  },
+  {
+    "id": "10",
+    "name": "Maison Beauté",
+    "address": "Yaoundé, Cameroun",
+    "phone": "Disponible sur GoAfricaOnline",
+    "category": "Salon de beauté, Spa, Massage",
+    "website": null,
+    "google_maps": "",
+    "opening_hours": {}
+  }
+]

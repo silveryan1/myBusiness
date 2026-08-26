@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPLEXE LA RÉFÉRENCE - Restaurant à Yaoundé</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo-container">
+                <div class="logo-placeholder">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>COMPLEXE LA RÉFÉRENCE</span>
+                </div>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <nav class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="#accueil">Accueil</a></li>
+                    <li><a href="#apropos">À Propos</a></li>
+                    <li><a href="#contact">Contact & Localisation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="accueil" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <span class="badge">Restaurant</span>
+            <h1>COMPLEXE LA RÉFÉRENCE</h1>
+            <p class="hero-subtitle"><i class="fa-solid fa-location-dot"></i> Awae, Yaoundé, Cameroun</p>
+            <div class="hero-buttons">
+                <a href="tel:+237690891052" class="btn btn-phone">
+                    <i class="fa-solid fa-phone"></i> 690891052
+                </a>
+                <a href="https://wa.me/237683054990" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i> WhatsApp: 683054990
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Awae+Yaounde+Cameroun" target="_blank" rel="noopener noreferrer" class="btn btn-map">
+                    <i class="fa-solid fa-route"></i> Voir l'itinéraire
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="apropos" class="section">
+        <div class="container">
+            <h2 class="section-title">À Propos</h2>
+            <div class="about-card">
+                <div class="about-icon">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <div class="about-text">
+                    <h3>Bienvenue au COMPLEXE LA RÉFÉRENCE</h3>
+                    <p>Situé à Awae, Yaoundé, le <strong>COMPLEXE LA RÉFÉRENCE</strong> est un établissement de restauration dédié à vous accueillir chaleureusement au cœur du Cameroun. N'hésitez pas à nous contacter directement pour tout renseignement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section bg-light">
+        <div class="container">
+            <h2 class="section-title">Contact & Localisation</h2>
+            <div class="contact-grid">
+                <div class="contact-info-card">
+                    <div class="contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <h4>Adresse</h4>
+                            <p>Awae, Yaoundé, Cameroun</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <div>
+                            <h4>Téléphone</h4>
+                            <p><a href="tel:+237690891052">690891052</a></p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <p><a href="https://wa.me/237683054990" target="_blank" rel="noopener noreferrer">WhatsApp: 683054990</a></p>
+                        </div>
+                    </div>
+                    <div class="action-box">
+                        <a href="https://www.google.com/maps/search/?api=1&query=Awae+Yaounde+Cameroun" target="_blank" rel="noopener noreferrer" class="btn btn-map btn-block">
+                            <i class="fa-solid fa-map-location-dot"></i> Voir l'itinéraire sur Google Maps
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>&copy; <span id="year"></span> COMPLEXE LA RÉFÉRENCE. Tous droits réservés.</p>
+            <p class="footer-address">Awae, Yaoundé, Cameroun</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
