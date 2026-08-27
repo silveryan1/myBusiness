@@ -20,7 +20,7 @@ export default function DashboardShell({ profile, children }: DashboardShellProp
     setSidebarOpen(false);
   }, [pathname]);
 
-  // Empêche le scroll du body quand sidebar est ouverte sur mobile
+  // Bloque le scroll du body quand sidebar est ouverte sur mobile
   useEffect(() => {
     if (sidebarOpen) {
       document.body.style.overflow = "hidden";
@@ -34,20 +34,23 @@ export default function DashboardShell({ profile, children }: DashboardShellProp
     <div className="min-h-screen flex" style={{ background: "var(--bg-app)" }}>
       <div className="mesh-bg" />
 
-      {/* Overlay mobile */}
+      {/* Overlay noir semi-transparent — mobile uniquement */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 lg:hidden"
+          style={{ zIndex: 45 }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <Sidebar profile={profile} onClose={() => setSidebarOpen(false)} />
-      </div>
+      {/* Sidebar — le CSS gère le slide in/out */}
+      <Sidebar
+        profile={profile}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      {/* Main content */}
+      {/* Contenu principal */}
       <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
         <Header
           profile={profile}
