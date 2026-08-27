@@ -5,6 +5,24 @@ import { usePathname, useRouter } from "next/navigation";
 import { useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@mybusiness/shared/types";
+import {
+  LayoutDashboard,
+  GraduationCap,
+  CalendarDays,
+  Users,
+  ClipboardList,
+  CheckSquare,
+  CreditCard,
+  Award,
+  MessageSquare,
+  BarChart2,
+  Settings,
+  Building2,
+  UserCog,
+  TrendingUp,
+  PenLine,
+  LogOut,
+} from "lucide-react";
 
 interface SidebarProps {
   profile: Profile | null;
@@ -14,37 +32,37 @@ interface SidebarProps {
 
 const navItems = {
   super_admin: [
-    { href: "/dashboard", icon: "🏠", label: "Tableau de bord" },
-    { href: "/organisations", icon: "🏢", label: "Organisations" },
-    { href: "/utilisateurs", icon: "👥", label: "Utilisateurs" },
-    { href: "/statistiques", icon: "📊", label: "Statistiques" },
-    { href: "/parametres", icon: "⚙️", label: "Paramètres" },
+    { href: "/dashboard",      icon: LayoutDashboard, label: "Tableau de bord" },
+    { href: "/organisations",  icon: Building2,        label: "Organisations" },
+    { href: "/utilisateurs",   icon: UserCog,          label: "Utilisateurs" },
+    { href: "/statistiques",   icon: TrendingUp,       label: "Statistiques" },
+    { href: "/parametres",     icon: Settings,         label: "Paramètres" },
   ],
   admin: [
-    { href: "/dashboard", icon: "🏠", label: "Tableau de bord" },
-    { href: "/formations", icon: "🎓", label: "Formations" },
-    { href: "/sessions", icon: "📅", label: "Sessions" },
-    { href: "/membres", icon: "👥", label: "Membres" },
-    { href: "/inscriptions", icon: "📋", label: "Inscriptions" },
-    { href: "/presences", icon: "✅", label: "Présences" },
-    { href: "/paiements", icon: "💳", label: "Paiements" },
-    { href: "/certificats", icon: "🏅", label: "Certificats" },
-    { href: "/messages", icon: "💬", label: "Messages" },
-    { href: "/rapports", icon: "📊", label: "Rapports" },
-    { href: "/parametres", icon: "⚙️", label: "Paramètres" },
+    { href: "/dashboard",     icon: LayoutDashboard, label: "Tableau de bord" },
+    { href: "/formations",    icon: GraduationCap,   label: "Formations" },
+    { href: "/sessions",      icon: CalendarDays,    label: "Sessions" },
+    { href: "/membres",       icon: Users,           label: "Membres" },
+    { href: "/inscriptions",  icon: ClipboardList,   label: "Inscriptions" },
+    { href: "/presences",     icon: CheckSquare,     label: "Présences" },
+    { href: "/paiements",     icon: CreditCard,      label: "Paiements" },
+    { href: "/certificats",   icon: Award,           label: "Certificats" },
+    { href: "/messages",      icon: MessageSquare,   label: "Messages" },
+    { href: "/rapports",      icon: BarChart2,       label: "Rapports" },
+    { href: "/parametres",    icon: Settings,        label: "Paramètres" },
   ],
   formateur: [
-    { href: "/dashboard", icon: "🏠", label: "Tableau de bord" },
-    { href: "/presences", icon: "✅", label: "Présences" },
-    { href: "/notes", icon: "📝", label: "Notes" },
-    { href: "/messages", icon: "💬", label: "Messages" },
+    { href: "/dashboard",  icon: LayoutDashboard, label: "Tableau de bord" },
+    { href: "/presences",  icon: CheckSquare,     label: "Présences" },
+    { href: "/notes",      icon: PenLine,         label: "Notes" },
+    { href: "/messages",   icon: MessageSquare,   label: "Messages" },
   ],
   etudiant: [
-    { href: "/dashboard", icon: "🏠", label: "Tableau de bord" },
-    { href: "/formations", icon: "🎓", label: "Formations" },
-    { href: "/inscriptions", icon: "📋", label: "Mes inscriptions" },
-    { href: "/certificats", icon: "🏅", label: "Mes certificats" },
-    { href: "/messages", icon: "💬", label: "Messages" },
+    { href: "/dashboard",    icon: LayoutDashboard, label: "Tableau de bord" },
+    { href: "/formations",   icon: GraduationCap,   label: "Formations" },
+    { href: "/inscriptions", icon: ClipboardList,   label: "Mes inscriptions" },
+    { href: "/certificats",  icon: Award,           label: "Mes certificats" },
+    { href: "/messages",     icon: MessageSquare,   label: "Messages" },
   ],
 };
 
@@ -68,7 +86,7 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
   const role = profile?.role || "etudiant";
   const items = navItems[role as keyof typeof navItems] || navItems.etudiant;
 
-  // Détection scroll vs tap sur mobile
+  // Détection scroll vs tap — empêche navigation accidentelle au scroll
   const touchStartY = useRef(0);
   const isScrolling = useRef(false);
 
@@ -78,13 +96,12 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
   }
 
   function handleTouchMove(e: React.TouchEvent) {
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
-    if (deltaY > 8) {
+    if (Math.abs(e.touches[0].clientY - touchStartY.current) > 8) {
       isScrolling.current = true;
     }
   }
 
-  function handleLinkClick(e: React.MouseEvent | React.TouchEvent) {
+  function handleLinkClick(e: React.MouseEvent) {
     if (isScrolling.current) {
       e.preventDefault();
       return;
@@ -103,34 +120,35 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
     <aside className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
 
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5 flex-shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0">
-          <span className="text-white font-bold text-sm">mB</span>
+      <div style={{ flexShrink: 0, padding: "1.25rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #6366f1, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <span style={{ color: "white", fontWeight: 700, fontSize: 13 }}>mB</span>
         </div>
-        <div className="min-w-0">
-          <div className="font-bold text-white text-sm truncate">myBusiness</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 700, color: "white", fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>myBusiness</div>
           {profile?.organisation && (
-            <div className="text-xs text-slate-500 truncate">
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {(profile.organisation as { nom?: string })?.nom}
             </div>
           )}
         </div>
       </div>
 
-      {/* Navigation scrollable — minHeight:0 + touch-action:pan-y */}
+      {/* Navigation — flex:1 + minHeight:0 = scrollable */}
       <nav
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         style={{
           flex: 1,
-          overflowY: "auto",
           minHeight: 0,
+          overflowY: "auto",
           padding: "0.75rem",
           touchAction: "pan-y",
           WebkitOverflowScrolling: "touch",
         } as React.CSSProperties}
       >
         {items.map((item) => {
+          const Icon = item.icon;
           const isActive = pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
@@ -139,25 +157,25 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
               href={item.href}
               onClick={handleLinkClick}
               className={`sidebar-item ${isActive ? "active" : ""}`}
-              style={{ marginBottom: "2px", display: "flex" }}
+              style={{ marginBottom: 2 }}
             >
-              <span className="text-base leading-none">{item.icon}</span>
+              <Icon size={18} strokeWidth={1.8} style={{ flexShrink: 0 }} />
               <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Pied fixe */}
-      <div className="flex-shrink-0 border-t border-white/5">
+      {/* Pied de sidebar — toujours visible */}
+      <div style={{ flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         {/* Infos utilisateur */}
-        <div className="px-3 pt-3">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03]">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+        <div style={{ padding: "0.75rem 0.75rem 0.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.75rem", borderRadius: 12, background: "rgba(255,255,255,0.03)" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: 14, flexShrink: 0 }}>
               {profile?.prenom?.[0]?.toUpperCase() || "U"}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-white truncate">
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: "white", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {profile?.prenom} {profile?.nom}
               </div>
               <span className={`badge mt-0.5 ${roleBadgeColors[role] || "badge-primary"}`}>
@@ -168,14 +186,14 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
         </div>
 
         {/* Bouton déconnexion */}
-        <div className="px-3 pb-4 pt-2">
+        <div style={{ padding: "0 0.75rem 1rem" }}>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+            style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.625rem 1rem", borderRadius: 12, fontSize: 14, fontWeight: 500, color: "#f87171", background: "transparent", border: "none", cursor: "pointer", transition: "background 0.2s" }}
+            onMouseEnter={e => (e.currentTarget.style.background = "rgba(239,68,68,0.1)")}
+            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
           >
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogOut size={16} strokeWidth={1.8} style={{ flexShrink: 0 }} />
             Déconnexion
           </button>
         </div>

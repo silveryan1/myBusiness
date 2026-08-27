@@ -376,10 +376,10 @@
     border-right: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
     z-index: 50;
     transform: translateX(-260px);
     transition: transform 0.3s ease;
