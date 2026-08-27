@@ -1,8 +1,6 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,7 +136,7 @@ export default async function InscriptionsPage() {
                       <td className="p-4 font-medium">{formation?.titre || '-'}</td>
                       <td className="p-4">{session?.titre || '-'}</td>
                       <td className="p-4 text-white/70">
-                        {session?.date_debut ? format(new Date(session.date_debut), 'dd MMM yyyy', { locale: fr }) : '-'}
+                        {session?.date_debut ? new Date(session.date_debut).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                       </td>
                       <td className="p-4">
                         <span className={`px-2.5 py-1 rounded-md text-xs font-medium border ${
@@ -155,7 +153,7 @@ export default async function InscriptionsPage() {
                         </span>
                       </td>
                       <td className="p-4 text-white/70">
-                        {inscription.created_at ? format(new Date(inscription.created_at), 'dd MMM yyyy', { locale: fr }) : '-'}
+                        {inscription.created_at ? new Date(inscription.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                       </td>
                       <td className="p-4 text-right">
                         <Link href={`/inscriptions/${inscription.id}`} className="inline-flex items-center justify-center px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-white/90 text-xs font-medium transition-colors">
