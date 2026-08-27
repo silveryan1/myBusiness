@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@mybusiness/shared/types";
 
 interface SidebarProps {
@@ -62,13 +63,22 @@ const roleBadgeColors: Record<string, string> = {
 
 export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const role = profile?.role || "etudiant";
   const items = navItems[role as keyof typeof navItems] || navItems.etudiant;
 
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
   return (
     <aside className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
+
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5">
+      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5 flex-shrink-0">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0">
           <span className="text-white font-bold text-sm">mB</span>
         </div>
@@ -82,41 +92,60 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-1">
-        {items.map((item) => {
-          const isActive = pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className={`sidebar-item ${isActive ? "active" : ""}`}
-            >
-              <span className="text-base leading-none">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+      {/* Navigation — scrollable, min-height:0 est crucial pour flex scroll */}
+      <nav style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "1rem 0.75rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+          {items.map((item) => {
+            const isActive = pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onClose}
+                className={`sidebar-item ${isActive ? "active" : ""}`}
+              >
+                <span className="text-base leading-none">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
-      {/* User info */}
-      <div className="px-3 py-4 border-t border-white/5">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03]">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-            {profile?.prenom?.[0]?.toUpperCase() || "U"}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-white truncate">
-              {profile?.prenom} {profile?.nom}
+      {/* Pied de sidebar — fixe en bas */}
+      <div className="flex-shrink-0 border-t border-white/5">
+        {/* Infos utilisateur */}
+        <div className="px-3 pt-3">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03]">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+              {profile?.prenom?.[0]?.toUpperCase() || "U"}
             </div>
-            <span className={`badge mt-0.5 ${roleBadgeColors[role] || "badge-primary"}`}>
-              {roleLabels[role]}
-            </span>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium text-white truncate">
+                {profile?.prenom} {profile?.nom}
+              </div>
+              <span className={`badge mt-0.5 ${roleBadgeColors[role] || "badge-primary"}`}>
+                {roleLabels[role]}
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Bouton déconnexion */}
+        <div className="px-3 pb-4 pt-2">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+          >
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Déconnexion
+          </button>
+        </div>
       </div>
+
     </aside>
   );
 }
