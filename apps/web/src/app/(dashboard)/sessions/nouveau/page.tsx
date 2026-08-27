@@ -1,224 +1,306 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
-
-interface Formation { id: string; titre: string; }
-interface Formateur { id: string; prenom: string; nom: string; }
-interface Salle { id: string; nom: string; capacite: number; }
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+import { ArrowLeft, Save, Loader2, CalendarDays } from 'lucide-react';
 
 export default function NouvelleSessionPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [formations, setFormations] = useState<Formation[]>([]);
-  const [formateurs, setFormateurs] = useState<Formateur[]>([]);
-  const [salles, setSalles] = useState<Salle[]>([]);
+  const supabase = createClient();
 
-  const [form, setForm] = useState({
-    formation_id: "",
-    formateur_id: "",
-    salle_id: "",
-    titre: "",
-    date_debut: "",
-    date_fin: "",
+  const [formations, setFormations] = useState<any[]>([]);
+  const [formateurs, setFormateurs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const [formData, setFormData] = useState({
+    titre: '',
+    formation_id: '',
+    formateur_id: '',
+    date_debut: '',
+    date_fin: '',
     places_total: 20,
+    lieu: '',
+    mode: 'presentiel',
+    description: ''
   });
 
   useEffect(() => {
-    async function loadData() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        // Fetch formations
+        const { data: formationsData, error: formationsError } = await supabase
+          .from('formations')
+          .select('id, titre');
+        
+        if (formationsError) throw formationsError;
+        setFormations(formationsData || []);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("organisation_id")
-        .eq("id", user.id)
+        // Fetch formateurs
+        const { data: formateursData, error: formateursError } = await supabase
+          .from('profiles')
+          .select('id, nom, prenom')
+          .eq('role', 'formateur');
+          
+        if (formateursError) throw formateursError;
+        setFormateurs(formateursData || []);
+      } catch (err: any) {
+        console.error('Erreur lors du chargement des données:', err);
+        setError('Erreur lors du chargement des données.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchData();
+  }, [supabase]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Utilisateur non connecté');
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('organisation_id')
+        .eq('id', user.id)
         .single();
 
-      const orgId = profile?.organisation_id;
-      if (!orgId) return;
+      if (profileError || !profileData) throw new Error('Profil introuvable');
 
-      const [f, fmt, s] = await Promise.all([
-        supabase.from("formations").select("id, titre").eq("organisation_id", orgId).eq("status", "published"),
-        supabase.from("profiles").select("id, prenom, nom").eq("organisation_id", orgId).eq("role", "formateur"),
-        supabase.from("salles").select("id, nom, capacite").eq("organisation_id", orgId).eq("is_active", true),
-      ]);
+      const organisation_id = profileData.organisation_id;
 
-      setFormations(f.data || []);
-      setFormateurs(fmt.data || []);
-      setSalles(s.data || []);
+      const sessionData: any = {
+        ...formData,
+        organisation_id,
+        status: 'scheduled',
+        places_restantes: formData.places_total,
+        places_total: parseInt(formData.places_total.toString(), 10)
+      };
+
+      if (!sessionData.titre && sessionData.formation_id) {
+        const formation = formations.find(f => f.id === sessionData.formation_id);
+        if (formation) {
+          sessionData.titre = formation.titre;
+        }
+      }
+
+      if (!sessionData.formateur_id) {
+        sessionData.formateur_id = null;
+      }
+
+      const { error: insertError } = await supabase
+        .from('sessions')
+        .insert(sessionData);
+
+      if (insertError) throw insertError;
+
+      router.push('/sessions');
+      router.refresh();
+    } catch (err: any) {
+      console.error('Erreur lors de la création de la session:', err);
+      setError(err.message || 'Une erreur est survenue lors de la création de la session.');
+    } finally {
+      setIsSubmitting(false);
     }
-    loadData();
-  }, []);
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("organisation_id")
-      .eq("id", user.id)
-      .single();
-
-    const { error: insertError } = await supabase.from("sessions").insert({
-      organisation_id: profile?.organisation_id,
-      formation_id: form.formation_id,
-      formateur_id: form.formateur_id || null,
-      salle_id: form.salle_id || null,
-      titre: form.titre || null,
-      date_debut: form.date_debut,
-      date_fin: form.date_fin,
-      places_total: form.places_total,
-      places_restantes: form.places_total,
-      status: "scheduled",
-    });
-
-    if (insertError) {
-      setError(insertError.message);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/dashboard/sessions");
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-2xl mx-auto animate-fade-in space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/sessions" className="btn btn-ghost btn-sm">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+    <div className="p-6 animate-fade-in max-w-4xl mx-auto">
+      <div className="flex items-center mb-6">
+        <Link href="/sessions" className="btn btn-secondary mr-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Retour
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Nouvelle session</h1>
-          <p className="text-slate-400 text-sm">Planifiez une nouvelle session de formation</p>
-        </div>
+        <h1 className="text-2xl font-bold text-white flex items-center">
+          <CalendarDays className="mr-3 text-primary" />
+          Nouvelle Session
+        </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card p-6 space-y-5">
-        <div>
-          <label className="form-label">Formation *</label>
-          <select
-            value={form.formation_id}
-            onChange={(e) => setForm({ ...form, formation_id: e.target.value })}
-            className="form-input"
-            required
-          >
-            <option value="">Sélectionner une formation</option>
-            {formations.map((f) => (
-              <option key={f.id} value={f.id}>{f.titre}</option>
-            ))}
-          </select>
-          {formations.length === 0 && (
-            <p className="text-xs text-amber-400 mt-1">
-              ⚠️ Aucune formation publiée.{" "}
-              <Link href="/dashboard/formations/nouveau" className="underline">Créer une formation</Link> d'abord.
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="form-label">Titre personnalisé (optionnel)</label>
-          <input
-            type="text"
-            value={form.titre}
-            onChange={(e) => setForm({ ...form, titre: e.target.value })}
-            className="form-input"
-            placeholder="Ex: Session intensive weekend"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">Date & heure de début *</label>
-            <input
-              type="datetime-local"
-              value={form.date_debut}
-              onChange={(e) => setForm({ ...form, date_debut: e.target.value })}
-              className="form-input"
-              required
-            />
-          </div>
-          <div>
-            <label className="form-label">Date & heure de fin *</label>
-            <input
-              type="datetime-local"
-              value={form.date_fin}
-              onChange={(e) => setForm({ ...form, date_fin: e.target.value })}
-              className="form-input"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">Formateur</label>
-            <select
-              value={form.formateur_id}
-              onChange={(e) => setForm({ ...form, formateur_id: e.target.value })}
-              className="form-input"
-            >
-              <option value="">Non assigné</option>
-              {formateurs.map((f) => (
-                <option key={f.id} value={f.id}>{f.prenom} {f.nom}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="form-label">Salle</label>
-            <select
-              value={form.salle_id}
-              onChange={(e) => setForm({ ...form, salle_id: e.target.value })}
-              className="form-input"
-            >
-              <option value="">Non assignée</option>
-              {salles.map((s) => (
-                <option key={s.id} value={s.id}>{s.nom} ({s.capacite} places)</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="form-label">Nombre de places</label>
-          <input
-            type="number"
-            value={form.places_total}
-            onChange={(e) => setForm({ ...form, places_total: parseInt(e.target.value) || 20 })}
-            className="form-input"
-            min={1}
-            max={500}
-          />
-        </div>
-
+      <div className="glass-card p-6">
         {error && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="bg-red-500/20 text-red-200 border border-red-500/50 p-4 rounded-md mb-6">
             {error}
           </div>
         )}
 
-        <div className="flex gap-3 pt-2">
-          <Link href="/dashboard/sessions" className="btn btn-secondary flex-1">Annuler</Link>
-          <button type="submit" className="btn btn-primary flex-1" disabled={loading}>
-            {loading ? <><div className="spinner" /> Création...</> : "Créer la session"}
-          </button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="form-label" htmlFor="formation_id">Formation *</label>
+              <select
+                id="formation_id"
+                name="formation_id"
+                required
+                className="form-input w-full bg-slate-900 border-slate-700"
+                value={formData.formation_id}
+                onChange={handleChange}
+              >
+                <option value="">Sélectionnez une formation</option>
+                {formations.map((f: any) => (
+                  <option key={f.id} value={f.id}>{f.titre}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="titre">Titre (optionnel)</label>
+              <input
+                type="text"
+                id="titre"
+                name="titre"
+                className="form-input w-full"
+                value={formData.titre}
+                onChange={handleChange}
+                placeholder="Ex: Session de Printemps (Défaut: titre de la formation)"
+              />
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="date_debut">Date de début *</label>
+              <input
+                type="datetime-local"
+                id="date_debut"
+                name="date_debut"
+                required
+                className="form-input w-full"
+                value={formData.date_debut}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="date_fin">Date de fin *</label>
+              <input
+                type="datetime-local"
+                id="date_fin"
+                name="date_fin"
+                required
+                className="form-input w-full"
+                value={formData.date_fin}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="formateur_id">Formateur (optionnel)</label>
+              <select
+                id="formateur_id"
+                name="formateur_id"
+                className="form-input w-full bg-slate-900 border-slate-700"
+                value={formData.formateur_id}
+                onChange={handleChange}
+              >
+                <option value="">Aucun formateur</option>
+                {formateurs.map((f: any) => (
+                  <option key={f.id} value={f.id}>{f.nom} {f.prenom}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="places_total">Places totales</label>
+              <input
+                type="number"
+                id="places_total"
+                name="places_total"
+                min="1"
+                required
+                className="form-input w-full"
+                value={formData.places_total}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="mode">Mode *</label>
+              <select
+                id="mode"
+                name="mode"
+                required
+                className="form-input w-full bg-slate-900 border-slate-700"
+                value={formData.mode}
+                onChange={handleChange}
+              >
+                <option value="presentiel">Présentiel</option>
+                <option value="distanciel">Distanciel</option>
+                <option value="hybride">Hybride</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="lieu">Lieu (optionnel)</label>
+              <input
+                type="text"
+                id="lieu"
+                name="lieu"
+                className="form-input w-full"
+                value={formData.lieu}
+                onChange={handleChange}
+                placeholder="Ex: Paris, Salle A"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label" htmlFor="description">Description (optionnelle)</label>
+            <textarea
+              id="description"
+              name="description"
+              rows={4}
+              className="form-input w-full"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Informations complémentaires sur cette session..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-4 mt-8 border-t border-slate-700 pt-6">
+            <Link href="/sessions" className="btn btn-secondary">
+              Annuler
+            </Link>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn btn-primary"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Créer la session
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

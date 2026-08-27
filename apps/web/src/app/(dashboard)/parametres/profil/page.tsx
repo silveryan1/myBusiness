@@ -36,7 +36,7 @@ export default function ProfilPage() {
   return (
     <div className="max-w-lg space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <a href="/dashboard/parametres" className="text-slate-400 hover:text-white transition-colors">← Retour</a>
+        <a href="/parametres" className="text-slate-400 hover:text-white transition-colors">← Retour</a>
         <h1 className="text-2xl font-bold text-white">Modifier mon profil</h1>
       </div>
 

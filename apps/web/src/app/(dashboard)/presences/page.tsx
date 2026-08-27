@@ -1,255 +1,333 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { CheckCircle, XCircle, Clock, Users, ChevronDown, AlertCircle, Loader2 } from 'lucide-react';
 
-interface Profile { id: string; prenom: string; nom: string; }
-interface Session { id: string; titre: string | null; date_debut: string; formation: { titre: string } | { titre: string }[] | null; }
-interface Presence { etudiant_id: string; status: string; commentaire: string; }
+type Session = {
+  id: string;
+  titre: string;
+  date_debut: string;
+  organisation_id: string;
+};
 
-const statusOptions = [
-  { value: "present", label: "Présent ✅", color: "text-emerald-400" },
-  { value: "absent", label: "Absent ❌", color: "text-red-400" },
-  { value: "retard", label: "Retard ⏰", color: "text-amber-400" },
-  { value: "excuse", label: "Excusé 📝", color: "text-blue-400" },
-];
+type Profile = {
+  id: string;
+  full_name: string;
+  email: string;
+  avatar_url?: string;
+};
+
+type Inscription = {
+  id: string;
+  etudiant_id: string;
+  session_id: string;
+  profiles: Profile;
+};
+
+type Presence = {
+  session_id: string;
+  etudiant_id: string;
+  statut: 'present' | 'absent' | 'retard';
+  organisation_id: string;
+  heure_arrivee?: string;
+};
 
 export default function PresencesPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [selectedSession, setSelectedSession] = useState("");
-  const [etudiants, setEtudiants] = useState<Profile[]>([]);
-  const [presences, setPresences] = useState<Record<string, Presence>>({});
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [selectedSessionId, setSelectedSessionId] = useState<string>('');
+  const [inscriptions, setInscriptions] = useState<Inscription[]>([]);
+  const [presences, setPresences] = useState<Presence[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  
+  const supabase = createClient();
 
   useEffect(() => {
-    async function loadSessions() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    async function loadInitialData() {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          setLoading(false);
+          return;
+        }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("organisation_id, role")
-        .eq("id", user.id)
-        .single();
-
-      let q = supabase
-        .from("sessions")
-        .select("id, titre, date_debut, formation:formations(titre)")
-        .in("status", ["scheduled", "ongoing"]);
-
-      if (profile?.role === "formateur") {
-        q = q.eq("formateur_id", user.id);
-      } else {
-        q = q.eq("organisation_id", profile?.organisation_id || "");
+        setUser(user);
+        
+        // Fetch user's profile to get organization_id and role
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('organisation_id, role')
+          .eq('id', user.id)
+          .single();
+          
+        if (profile) {
+          let query = supabase
+            .from('sessions')
+            .select('id, titre, date_debut, organisation_id')
+            .eq('organisation_id', profile.organisation_id);
+            
+          if (profile.role === 'formateur') {
+            query = query.eq('formateur_id', user.id);
+          }
+          
+          const { data: sessionsData, error } = await query.order('date_debut', { ascending: false });
+          
+          if (error) throw error;
+          setSessions(sessionsData || []);
+        }
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+      } finally {
+        setLoading(false);
       }
-
-      const { data } = await q.order("date_debut");
-      setSessions(data || []);
     }
-    loadSessions();
-  }, []);
+    
+    loadInitialData();
+  }, [supabase]);
 
   useEffect(() => {
-    if (!selectedSession) return;
-
-    async function loadEtudiants() {
-      const supabase = createClient();
-      const { data: inscriptions } = await supabase
-        .from("inscriptions")
-        .select("etudiant:profiles(id, prenom, nom)")
-        .eq("session_id", selectedSession)
-        .eq("status", "confirmed");
-
-      const students = (inscriptions || []).map((i) => i.etudiant as unknown as Profile);
-      setEtudiants(students);
-
-      // Charger les présences existantes pour cette date
-      const { data: existing } = await supabase
-        .from("presences")
-        .select("etudiant_id, status, commentaire")
-        .eq("session_id", selectedSession)
-        .eq("date_presence", date);
-
-      const presMap: Record<string, Presence> = {};
-      (existing || []).forEach((p) => {
-        presMap[p.etudiant_id] = p;
-      });
-      setPresences(presMap);
+    if (!selectedSessionId) {
+      setInscriptions([]);
+      setPresences([]);
+      return;
     }
-    loadEtudiants();
-  }, [selectedSession, date]);
+    
+    async function loadStudentsAndPresences() {
+      try {
+        setLoadingStudents(true);
+        // Fetch inscriptions with profiles
+        const { data: inscriptionsData, error: inscriptsError } = await supabase
+          .from('inscriptions')
+          .select(`
+            id, 
+            etudiant_id, 
+            session_id, 
+            profiles (id, full_name, email, avatar_url)
+          `)
+          .eq('session_id', selectedSessionId);
+          
+        if (inscriptsError) throw inscriptsError;
+        
+        setInscriptions(inscriptionsData as any[] || []);
+        
+        // Fetch presences
+        const { data: presencesData, error: presencesError } = await supabase
+          .from('presences')
+          .select('*')
+          .eq('session_id', selectedSessionId);
+          
+        if (presencesError) throw presencesError;
+        
+        setPresences(presencesData || []);
+        
+      } catch (error) {
+        console.error('Error loading students:', error);
+      } finally {
+        setLoadingStudents(false);
+      }
+    }
+    
+    loadStudentsAndPresences();
+  }, [selectedSessionId, supabase]);
 
-  function setStatus(studentId: string, status: string) {
-    setPresences((prev) => ({
-      ...prev,
-      [studentId]: { etudiant_id: studentId, status, commentaire: prev[studentId]?.commentaire || "" },
-    }));
-  }
-
-  async function handleSave() {
-    if (!selectedSession) return;
-    setLoading(true);
-    setSaved(false);
-
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("organisation_id")
-      .eq("id", user.id)
-      .single();
-
-    const records = Object.values(presences).map((p) => ({
-      organisation_id: profile?.organisation_id,
-      session_id: selectedSession,
-      etudiant_id: p.etudiant_id,
-      formateur_id: user.id,
-      status: p.status,
-      date_presence: date,
-      commentaire: p.commentaire || null,
-    }));
-
-    await supabase.from("presences").upsert(records, {
-      onConflict: "session_id,etudiant_id,date_presence",
+  const handlePresenceUpdate = async (etudiantId: string, status: 'present' | 'absent' | 'retard') => {
+    const session = sessions.find(s => s.id === selectedSessionId);
+    if (!session) return;
+    
+    const newPresence = {
+      session_id: selectedSessionId,
+      etudiant_id: etudiantId,
+      statut: status,
+      organisation_id: session.organisation_id,
+      heure_arrivee: new Date().toISOString()
+    };
+    
+    // Update local state optimistically
+    setPresences(prev => {
+      const existing = prev.findIndex(p => p.etudiant_id === etudiantId);
+      if (existing >= 0) {
+        const next = [...prev];
+        next[existing] = newPresence;
+        return next;
+      }
+      return [...prev, newPresence];
     });
+    
+    try {
+      const { error } = await supabase
+        .from('presences')
+        .upsert(newPresence, { onConflict: 'session_id, etudiant_id' }); 
+        
+      if (error) throw error;
+      
+    } catch (error) {
+      console.error('Error updating presence:', error);
+      // Ideally we would revert state here if it fails
+    }
+  };
 
-    setLoading(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const presentCount = presences.filter(p => p.statut === 'present').length;
+  const absentCount = presences.filter(p => p.statut === 'absent').length;
+  const retardCount = presences.filter(p => p.statut === 'retard').length;
+
+  function getInitials(name: string) {
+    if (!name) return '??';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   }
-
-  const presentCount = Object.values(presences).filter((p) => p.status === "present").length;
-  const absentCount = Object.values(presences).filter((p) => p.status === "absent").length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Suivi des présences</h1>
-        <p className="text-slate-400 mt-1">Enregistrez les présences pour chaque session</p>
+    <div className="p-6 max-w-5xl mx-auto space-y-6 text-white min-h-screen">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Users className="w-8 h-8 text-primary" />
+          Présences
+        </h1>
+        <p className="text-zinc-400">Gérez les présences de vos étudiants pour chaque session.</p>
       </div>
 
-      {/* Filtres */}
-      <div className="glass-card p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="form-label">Session</label>
-            <select
-              value={selectedSession}
-              onChange={(e) => setSelectedSession(e.target.value)}
-              className="form-input"
+      <div className="glass-card p-6 space-y-4">
+        <label className="block text-sm font-medium text-zinc-300">Sélectionner une session</label>
+        {loading ? (
+          <div className="flex items-center gap-2 text-zinc-400">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Chargement des sessions...</span>
+          </div>
+        ) : (
+          <div className="relative">
+            <select 
+              value={selectedSessionId}
+              onChange={(e) => setSelectedSessionId(e.target.value)}
+              className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg p-3 appearance-none text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
             >
-              <option value="">Sélectionner une session</option>
-              {sessions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {(Array.isArray(s.formation) ? s.formation[0]?.titre : s.formation?.titre) || s.titre || "Session"} —{" "}
-                  {new Date(s.date_debut).toLocaleDateString("fr-FR")}
+              <option value="">-- Choisir une session --</option>
+              {sessions.map(session => (
+                <option key={session.id} value={session.id}>
+                  {session.titre} - {new Date(session.date_debut).toLocaleDateString('fr-FR', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                  })}
                 </option>
               ))}
             </select>
+            <ChevronDown className="absolute right-3 top-3.5 w-5 h-5 text-zinc-400 pointer-events-none" />
           </div>
-          <div>
-            <label className="form-label">Date de présence</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="form-input"
-            />
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Liste étudiants */}
-      {selectedSession && (
-        <>
-          {etudiants.length === 0 ? (
-            <div className="glass-card py-12 text-center">
-              <div className="text-3xl mb-3">👥</div>
-              <p className="text-slate-400">Aucun étudiant confirmé pour cette session</p>
+      {selectedSessionId && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="glass-card p-4 flex flex-col items-center justify-center text-center gap-2 border-t-4 border-t-green-500">
+              <span className="text-3xl font-bold text-green-400">{presentCount}</span>
+              <span className="text-sm text-zinc-400 uppercase tracking-wider">Présents</span>
             </div>
-          ) : (
-            <>
-              {/* Stats rapides */}
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="badge badge-success">✅ {presentCount} présents</div>
-                <div className="badge badge-error">❌ {absentCount} absents</div>
-                <div className="badge badge-info">👥 {etudiants.length} total</div>
-              </div>
+            <div className="glass-card p-4 flex flex-col items-center justify-center text-center gap-2 border-t-4 border-t-red-500">
+              <span className="text-3xl font-bold text-red-400">{absentCount}</span>
+              <span className="text-sm text-zinc-400 uppercase tracking-wider">Absents</span>
+            </div>
+            <div className="glass-card p-4 flex flex-col items-center justify-center text-center gap-2 border-t-4 border-t-orange-500">
+              <span className="text-3xl font-bold text-orange-400">{retardCount}</span>
+              <span className="text-sm text-zinc-400 uppercase tracking-wider">Retards</span>
+            </div>
+          </div>
 
-              <div className="glass-card overflow-hidden">
-                <div className="p-4 border-b border-white/5 flex items-center justify-between">
-                  <h2 className="font-semibold text-white">Étudiants inscrits</h2>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => etudiants.forEach((e) => setStatus(e.id, "present"))}
-                      className="btn btn-ghost btn-sm text-emerald-400"
-                    >
-                      Tous présents
-                    </button>
-                    <button
-                      onClick={() => etudiants.forEach((e) => setStatus(e.id, "absent"))}
-                      className="btn btn-ghost btn-sm text-red-400"
-                    >
-                      Tous absents
-                    </button>
-                  </div>
+          <div className="glass-card overflow-hidden">
+            <div className="p-4 border-b border-white/10 bg-white/5">
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                Liste des étudiants
+                {loadingStudents && <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />}
+              </h2>
+            </div>
+            
+            <div className="divide-y divide-white/5">
+              {inscriptions.length === 0 && !loadingStudents ? (
+                <div className="p-8 text-center text-zinc-400 flex flex-col items-center gap-2">
+                  <AlertCircle className="w-8 h-8 opacity-50" />
+                  <p>Aucun étudiant inscrit à cette session.</p>
                 </div>
-                <div className="divide-y divide-white/5">
-                  {etudiants.map((etudiant) => {
-                    const p = presences[etudiant.id];
-                    return (
-                      <div key={etudiant.id} className="flex items-center justify-between p-4 hover:bg-white/[0.02]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
-                            {etudiant.prenom?.[0]?.toUpperCase()}
-                          </div>
-                          <span className="text-white font-medium">{etudiant.prenom} {etudiant.nom}</span>
+              ) : (
+                inscriptions.map(inscription => {
+                  // Handle potential array or object from Supabase join
+                  const profile = Array.isArray(inscription.profiles) ? inscription.profiles[0] : inscription.profiles;
+                  const fullName = profile?.full_name || 'Étudiant inconnu';
+                  const email = profile?.email || 'Email non renseigné';
+                  const presence = presences.find(p => p.etudiant_id === inscription.etudiant_id);
+                  const status = presence?.statut;
+
+                  return (
+                    <div key={inscription.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/5 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center border border-white/10 flex-shrink-0 overflow-hidden">
+                          {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} alt={fullName} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-sm font-medium text-zinc-300">{getInitials(fullName)}</span>
+                          )}
                         </div>
-                        <div className="flex gap-2">
-                          {statusOptions.map((opt) => (
-                            <button
-                              key={opt.value}
-                              onClick={() => setStatus(etudiant.id, opt.value)}
-                              className={`btn btn-sm transition-all ${
-                                p?.status === opt.value
-                                  ? "btn-primary scale-105"
-                                  : "btn-ghost opacity-50 hover:opacity-100"
-                              }`}
-                              title={opt.label}
-                            >
-                              {opt.label.split(" ")[1]}
-                            </button>
-                          ))}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-white">{fullName}</p>
+                            {status && (
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium border ${
+                                status === 'present' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                status === 'absent' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                              }`}>
+                                {status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : 'Retard'}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-zinc-400">{email}</p>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  onClick={handleSave}
-                  className="btn btn-primary btn-lg"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <><div className="spinner" /> Enregistrement...</>
-                  ) : saved ? (
-                    <><span>✅</span> Enregistré !</>
-                  ) : (
-                    "Enregistrer les présences"
-                  )}
-                </button>
-              </div>
-            </>
-          )}
-        </>
+                      
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handlePresenceUpdate(inscription.etudiant_id, 'present')}
+                          className={`btn flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                            status === 'present' 
+                              ? 'bg-green-500/20 text-green-400 border border-green-500/50' 
+                              : 'bg-zinc-800/50 text-zinc-400 border border-white/5 hover:bg-zinc-800 hover:text-zinc-200'
+                          }`}
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="hidden sm:inline">Présent</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => handlePresenceUpdate(inscription.etudiant_id, 'absent')}
+                          className={`btn flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                            status === 'absent' 
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/50' 
+                              : 'bg-zinc-800/50 text-zinc-400 border border-white/5 hover:bg-zinc-800 hover:text-zinc-200'
+                          }`}
+                        >
+                          <XCircle className="w-4 h-4" />
+                          <span className="hidden sm:inline">Absent</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => handlePresenceUpdate(inscription.etudiant_id, 'retard')}
+                          className={`btn flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                            status === 'retard' 
+                              ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' 
+                              : 'bg-zinc-800/50 text-zinc-400 border border-white/5 hover:bg-zinc-800 hover:text-zinc-200'
+                          }`}
+                        >
+                          <Clock className="w-4 h-4" />
+                          <span className="hidden sm:inline">Retard</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

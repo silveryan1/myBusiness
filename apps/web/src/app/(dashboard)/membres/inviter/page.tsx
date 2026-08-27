@@ -80,7 +80,7 @@ export default function InviterMembrePage() {
             <button onClick={() => { setSuccess(false); setForm({ prenom: "", nom: "", email: "", role: "etudiant", password: "" }); }} className="btn btn-secondary">
               Inviter un autre
             </button>
-            <Link href="/dashboard/membres" className="btn btn-primary">
+            <Link href="/membres" className="btn btn-primary">
               Voir les membres
             </Link>
           </div>
@@ -92,7 +92,7 @@ export default function InviterMembrePage() {
   return (
     <div className="max-w-lg mx-auto animate-fade-in space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/membres" className="btn btn-ghost btn-sm">
+        <Link href="/membres" className="btn btn-ghost btn-sm">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -180,7 +180,7 @@ export default function InviterMembrePage() {
           )}
 
           <div className="flex gap-3 pt-2">
-            <Link href="/dashboard/membres" className="btn btn-secondary flex-1">
+            <Link href="/membres" className="btn btn-secondary flex-1">
               Annuler
             </Link>
             <button type="submit" className="btn btn-primary flex-1" disabled={loading}>

@@ -43,7 +43,7 @@ export default async function ParametresPage() {
           <div><div className="text-slate-500 mb-1">Rôle</div><div className="text-white capitalize">{profile?.role}</div></div>
         </div>
         <div className="pt-2">
-          <a href="/dashboard/parametres/profil" className="btn btn-secondary btn-sm">✏️ Modifier mon profil</a>
+          <a href="/parametres/profil" className="btn btn-secondary btn-sm">✏️ Modifier mon profil</a>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default async function ParametresPage() {
             <div className="text-white font-medium">Mot de passe</div>
             <div className="text-slate-400 text-sm">Modifiez votre mot de passe de connexion</div>
           </div>
-          <a href="/dashboard/parametres/mot-de-passe" className="btn btn-secondary btn-sm">Changer</a>
+          <a href="/parametres/mot-de-passe" className="btn btn-secondary btn-sm">Changer</a>
         </div>
       </div>
     </div>

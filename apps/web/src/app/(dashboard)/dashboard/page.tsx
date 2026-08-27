@@ -159,40 +159,40 @@ export default async function DashboardPage() {
           <div className="space-y-2">
             {role === "admin" || role === "super_admin" ? (
               <>
-                <a href="/dashboard/formations/nouveau" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/formations/nouveau" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>🎓</span> Nouvelle formation
                 </a>
-                <a href="/dashboard/membres/inviter" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/membres/inviter" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>👤</span> Inviter un membre
                 </a>
-                <a href="/dashboard/sessions/nouveau" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/sessions/nouveau" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>📅</span> Planifier une session
                 </a>
-                <a href="/dashboard/rapports" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/rapports" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>📊</span> Voir les rapports
                 </a>
               </>
             ) : role === "formateur" ? (
               <>
-                <a href="/dashboard/presences" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/presences" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>✅</span> Prendre les présences
                 </a>
-                <a href="/dashboard/notes" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/notes" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>📝</span> Saisir des notes
                 </a>
-                <a href="/dashboard/supports" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/supports" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>📚</span> Uploader un support
                 </a>
               </>
             ) : (
               <>
-                <a href="/dashboard/formations" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/formations" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>🎓</span> Voir les formations
                 </a>
-                <a href="/dashboard/mon-planning" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/mon-planning" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>📅</span> Mon planning
                 </a>
-                <a href="/dashboard/certificats" className="btn btn-secondary w-full justify-start gap-3 text-sm">
+                <a href="/certificats" className="btn btn-secondary w-full justify-start gap-3 text-sm">
                   <span>🏅</span> Mes certificats
                 </a>
               </>

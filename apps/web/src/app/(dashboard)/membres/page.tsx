@@ -50,7 +50,7 @@ export default async function MembresPage() {
           <h1 className="text-2xl font-bold text-white">Membres</h1>
           <p className="text-slate-400 mt-1">Gérez les membres de votre organisation</p>
         </div>
-        <Link href="/dashboard/membres/inviter" className="btn btn-primary">
+        <Link href="/membres/inviter" className="btn btn-primary">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -87,7 +87,7 @@ export default async function MembresPage() {
           <div className="py-16 text-center">
             <div className="text-4xl mb-3">👥</div>
             <p className="text-slate-400 mb-4">Aucun membre pour l'instant</p>
-            <Link href="/dashboard/membres/inviter" className="btn btn-primary">
+            <Link href="/membres/inviter" className="btn btn-primary">
               Inviter le premier membre
             </Link>
           </div>
