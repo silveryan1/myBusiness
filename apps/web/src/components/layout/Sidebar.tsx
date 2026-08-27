@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@mybusiness/shared/types";
 
@@ -67,6 +68,30 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
   const role = profile?.role || "etudiant";
   const items = navItems[role as keyof typeof navItems] || navItems.etudiant;
 
+  // Détection scroll vs tap sur mobile
+  const touchStartY = useRef(0);
+  const isScrolling = useRef(false);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+    isScrolling.current = false;
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
+    if (deltaY > 8) {
+      isScrolling.current = true;
+    }
+  }
+
+  function handleLinkClick(e: React.MouseEvent | React.TouchEvent) {
+    if (isScrolling.current) {
+      e.preventDefault();
+      return;
+    }
+    onClose?.();
+  }
+
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -92,28 +117,38 @@ export default function Sidebar({ profile, onClose, isOpen }: SidebarProps) {
         </div>
       </div>
 
-      {/* Navigation — scrollable, min-height:0 est crucial pour flex scroll */}
-      <nav style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "1rem 0.75rem" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-          {items.map((item) => {
-            const isActive = pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={`sidebar-item ${isActive ? "active" : ""}`}
-              >
-                <span className="text-base leading-none">{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
+      {/* Navigation scrollable — minHeight:0 + touch-action:pan-y */}
+      <nav
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          minHeight: 0,
+          padding: "0.75rem",
+          touchAction: "pan-y",
+          WebkitOverflowScrolling: "touch",
+        } as React.CSSProperties}
+      >
+        {items.map((item) => {
+          const isActive = pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={handleLinkClick}
+              className={`sidebar-item ${isActive ? "active" : ""}`}
+              style={{ marginBottom: "2px", display: "flex" }}
+            >
+              <span className="text-base leading-none">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Pied de sidebar — fixe en bas */}
+      {/* Pied fixe */}
       <div className="flex-shrink-0 border-t border-white/5">
         {/* Infos utilisateur */}
         <div className="px-3 pt-3">
