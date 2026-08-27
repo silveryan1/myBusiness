@@ -6,6 +6,7 @@ import type { Profile } from "@mybusiness/shared/types";
 
 interface SidebarProps {
   profile: Profile | null;
+  onClose?: () => void;
 }
 
 const navItems = {
@@ -58,13 +59,13 @@ const roleBadgeColors: Record<string, string> = {
   etudiant: "badge-success",
 };
 
-export default function Sidebar({ profile }: SidebarProps) {
+export default function Sidebar({ profile, onClose }: SidebarProps) {
   const pathname = usePathname();
   const role = profile?.role || "etudiant";
   const items = navItems[role as keyof typeof navItems] || navItems.etudiant;
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" style={{ width: 260 }}>
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0">
@@ -89,6 +90,7 @@ export default function Sidebar({ profile }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`sidebar-item ${isActive ? "active" : ""}`}
             >
               <span className="text-base leading-none">{item.icon}</span>

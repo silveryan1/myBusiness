@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
+import DashboardShell from "@/components/layout/DashboardShell";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -28,15 +27,8 @@ export default async function DashboardLayout({
     .single();
 
   return (
-    <div className="min-h-screen flex" style={{ background: "var(--bg-app)" }}>
-      <div className="mesh-bg" />
-      <Sidebar profile={profile} />
-      <div className="flex-1 flex flex-col ml-0 lg:ml-[260px] min-h-screen">
-        <Header profile={profile} />
-        <main className="flex-1 p-6 lg:p-8">
-          {children}
-        </main>
-      </div>
-    </div>
+    <DashboardShell profile={profile}>
+      {children}
+    </DashboardShell>
   );
 }
