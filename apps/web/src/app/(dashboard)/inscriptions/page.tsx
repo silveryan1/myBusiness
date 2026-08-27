@@ -5,7 +5,7 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export default async function InscriptionsPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const {
     data: { user },
@@ -57,9 +57,9 @@ export default async function InscriptionsPage() {
 
   const stats = {
     total: inscriptions.length,
-    confirmees: inscriptions.filter(i => i.statut === 'confirmee').length,
-    en_attente: inscriptions.filter(i => i.statut === 'en_attente').length,
-    annulees: inscriptions.filter(i => i.statut === 'annulee').length,
+    confirmees: inscriptions.filter((i: any) => i.statut === 'confirmee').length,
+    en_attente: inscriptions.filter((i: any) => i.statut === 'en_attente').length,
+    annulees: inscriptions.filter((i: any) => i.statut === 'annulee').length,
   }
 
   return (
@@ -108,7 +108,7 @@ export default async function InscriptionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10 text-sm text-white/90">
-                {inscriptions.map((inscription) => {
+                {inscriptions.map((inscription: any) => {
                   const etudiant = Array.isArray(inscription.etudiant) ? inscription.etudiant[0] : inscription.etudiant
                   const session = Array.isArray(inscription.session) ? inscription.session[0] : inscription.session
                   const formationData = session?.formation
