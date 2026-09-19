@@ -11,6 +11,7 @@ import { startCommentScanner } from "./commenter";
 import { handleMessagingEvent, setupMessengerProfile } from "./messenger";
 import { verifyGeminiKey } from "./gemini";
 import { getSafetyStats } from "./safety";
+import { sendStartupEmail, sendCriticalAlert, sendWeeklyReport } from "./mailer";
 
 dotenv.config();
 
@@ -202,12 +203,28 @@ async function bootstrap(): Promise<void> {
     console.log(`   POST http://localhost:${PORT}/webhook   → Événements Facebook`);
     console.log(`   POST http://localhost:${PORT}/admin/publish → Publication manuelle`);
     console.log("\n✅ Bot entièrement démarré et opérationnel !\n");
+
+    // Envoyer email de confirmation démarrage
+    sendStartupEmail().catch(() => {});
+
+    // Rapport hebdomadaire automatique chaque lundi à 7h (heure Douala)
+    import("node-cron").then((cron) => {
+      cron.schedule("0 6 * * 1", () => {
+        const stats = getSafetyStats() as any;
+        sendWeeklyReport({
+          postsPublished: stats.postsToday ?? 0,
+          commentsReplied: stats.commentsToday ?? 0,
+          messagesSent: stats.messagesToday ?? 0,
+        }).catch(() => {});
+      }, { timezone: "Africa/Douala" });
+    });
   });
 }
 
 // Gestion des erreurs non capturées
 process.on("unhandledRejection", (reason) => {
   console.error("❌ Erreur non gérée:", reason);
+  sendCriticalAlert("Erreur non gérée", String(reason)).catch(() => {});
 });
 
 process.on("SIGTERM", () => {
@@ -216,7 +233,11 @@ process.on("SIGTERM", () => {
 });
 
 // Lancement
-bootstrap().catch((error) => {
+bootstrap().catch(async (error) => {
   console.error("❌ Erreur fatale au démarrage:", error);
+  await sendCriticalAlert(
+    "Token Facebook expiré ou invalide",
+    "Allez sur developers.facebook.com/tools/explorer → Générez un nouveau token → Mettez à jour FACEBOOK_PAGE_ACCESS_TOKEN sur Railway"
+  ).catch(() => {});
   process.exit(1);
 });
