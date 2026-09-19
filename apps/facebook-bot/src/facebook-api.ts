@@ -176,6 +176,28 @@ class FacebookApiClient {
     }
   }
 
+  /**
+   * Ajoute un commentaire sur un post (premier commentaire stratégique)
+   */
+  async commentOnPost(
+    postId: string,
+    message: string
+  ): Promise<{ id: string }> {
+    try {
+      const response = await this.client.post(`/${postId}/comments`, {
+        message,
+      });
+      console.log(`💬 Commentaire ajouté au post ${postId}`);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        `❌ Erreur commentaire post ${postId}:`,
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  }
+
   // ─── MESSAGES (MESSENGER) ─────────────────────────────────
 
   /**

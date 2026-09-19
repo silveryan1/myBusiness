@@ -92,10 +92,24 @@ async function autoPublishPost(category?: string): Promise<void> {
     }
 
     console.log(`📝 Aperçu: ${message.substring(0, 100)}...`);
-    await facebookApi.publishPost(message);
+    const postResult = await facebookApi.publishPost(message);
     recordPostPublished();
 
     console.log(`✅ Post publié avec succès!`);
+
+    // Commentaire stratégique automatique
+    if (postResult && postResult.id) {
+      setTimeout(async () => {
+        try {
+          const strategicComment = `@followers 🚀 Prêt à transformer votre entreprise avec le digital ? Contactez-moi directement sur WhatsApp au +237 690 891 052 ou visitez mon portfolio pour voir mes réalisations : https://silver-portfolio-silk.vercel.app/`;
+          await facebookApi.commentOnPost(postResult.id, strategicComment);
+          console.log(`💬 Commentaire stratégique ajouté sur le post !`);
+        } catch (e) {
+          console.error(`❌ Erreur lors de l'ajout du commentaire stratégique:`, e);
+        }
+      }, 5000); // Délai de 5 secondes après la publication
+    }
+    
     console.log(`─────────────────────────────────────────────`);
   } catch (error) {
     console.error(`❌ Erreur lors de la publication automatique:`, error);

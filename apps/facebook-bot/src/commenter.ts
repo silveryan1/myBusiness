@@ -70,6 +70,8 @@ async function scanAndReplyToComments(): Promise<void> {
         newCount++;
 
         const authorName = comment.from.name;
+        // Extraire le prénom (premier mot du nom complet)
+        const firstName = authorName.split(" ")[0];
         const commentText = comment.message || "";
         const postMessage = post.message || "Publication SilverDev";
 
@@ -89,23 +91,27 @@ async function scanAndReplyToComments(): Promise<void> {
             await facebookApi.likeComment(commentId);
             await microDelay();
 
-            // Générer réponse avec Gemini
-            const reply = await generateCommentReply(
+            // Générer réponse avec Gemini (en mentionnant le prénom)
+            const replyText = await generateCommentReply(
               commentText,
-              authorName,
+              firstName,
               postMessage
             );
 
-            // Publier la réponse
-            await facebookApi.replyToComment(commentId, reply);
+            // Ajouter @Prénom au début pour que le client reçoive une notification
+            const replyWithMention = `@${firstName} ${replyText}`;
+
+            // Publier la réponse avec mention
+            await facebookApi.replyToComment(commentId, replyWithMention);
             recordCommentReply();
 
-            console.log(`  ✅ Réponse envoyée à ${authorName} (après ${Math.round(delay / 60000)} min)`);
+            console.log(`  ✅ Réponse envoyée à @${firstName} (après ${Math.round(delay / 60000)} min)`);
             pendingReplies.delete(commentId);
           } catch (err) {
             console.error(`  ❌ Erreur réponse différée à ${authorName}:`, err);
           }
         }, delay);
+
 
         pendingReplies.set(commentId, timer);
 
