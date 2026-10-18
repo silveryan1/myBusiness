@@ -110,18 +110,18 @@ const features = [
   },
   {
     icon: "💳",
-    title: "Paiements Intégrés",
-    desc: "Gérez les paiements avec Stripe — gratuit ou payant, c'est vous qui choisissez par formation.",
+    title: "Paiements en FCFA",
+    desc: "Espèces, MTN Mobile Money, Orange Money : chaque encaissement donne un reçu numéroté, et les restes à payer sont suivis.",
   },
   {
     icon: "📱",
-    title: "Application Mobile",
-    desc: "Accédez à tout depuis l'application iOS et Android — planning, cours, messagerie, certificats.",
+    title: "Sur téléphone",
+    desc: "Tout fonctionne dans le navigateur du téléphone comme sur ordinateur : catalogue, appel, notes, messagerie.",
   },
   {
     icon: "🏅",
-    title: "Certificats PDF",
-    desc: "Générez et envoyez automatiquement des attestations de formation au format PDF.",
+    title: "Certificats vérifiables",
+    desc: "Délivrez des certificats à imprimer ou en PDF ; chacun porte un code que tout employeur peut vérifier en ligne.",
   },
 ];
 
@@ -129,5 +129,5 @@ const stats = [
   { value: "∞", label: "Organisations" },
   { value: "4", label: "Types de rôles" },
   { value: "100%", label: "Multi-tenant" },
-  { value: "Web + Mobile", label: "Disponible sur" },
+  { value: "PC + téléphone", label: "Disponible sur" },
 ];

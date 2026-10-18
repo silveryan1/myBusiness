@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@mybusiness/shared": ["../../packages/shared/src/index.ts"],
+      "@mybusiness/shared/*": ["../../packages/shared/src/*/index.ts"]
     }
   },
   "include": [

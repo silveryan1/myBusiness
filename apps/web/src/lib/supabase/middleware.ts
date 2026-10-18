@@ -31,7 +31,8 @@ export async function updateSession(request: NextRequest) {
 
   // Routes publiques (accessibles sans auth)
   const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/']
-  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith('/auth'))
+  const isPublicRoute = publicRoutes.some(route => pathname === route) ||
+    pathname.startsWith('/auth') || pathname.startsWith('/verifier')
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()

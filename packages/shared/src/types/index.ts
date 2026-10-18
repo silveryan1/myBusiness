@@ -20,6 +20,10 @@ export type PresenceStatus = 'present' | 'absent' | 'retard' | 'excuse';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
+export type SessionMode = 'presentiel' | 'distanciel' | 'hybride';
+
+export type PaiementMethode = 'especes' | 'mtn_momo' | 'orange_money' | 'virement' | 'autre';
+
 // ---- MODELS ----
 
 export interface Organisation {
@@ -107,6 +111,9 @@ export interface Session {
   places_restantes: number;
   status: SessionStatus;
   notes_formateur?: string;
+  lieu?: string;
+  mode?: SessionMode;
+  description?: string;
   created_at: string;
   updated_at: string;
   // Relations
@@ -173,7 +180,11 @@ export interface Paiement {
   montant: number;
   devise: string;
   status: PaiementStatus;
-  methode?: string;
+  methode?: PaiementMethode;
+  reference?: string;
+  commentaire?: string;
+  enregistre_par?: string;
+  recu_numero: string;
   stripe_payment_id?: string;
   stripe_session_id?: string;
   date_paiement?: string;
@@ -190,6 +201,9 @@ export interface Certificat {
   date_delivrance: string;
   pdf_url?: string;
   is_valide: boolean;
+  mention?: string;
+  delivre_par?: string;
+  code_verification: string;
   created_at: string;
   // Relations
   etudiant?: Profile;

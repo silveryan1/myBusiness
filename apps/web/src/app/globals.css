@@ -480,3 +480,18 @@
       var(--bg-app);
   }
 }
+
+/* ============================================================
+   IMPRESSION (reçus, certificats) : seul le document est imprimé
+   ============================================================ */
+@media print {
+  @page { margin: 12mm; }
+  html, body { background: #ffffff !important; }
+  .sidebar, .mesh-bg, .no-print, body header.sticky { display: none !important; }
+  .print-plein { margin: 0 !important; padding: 0 !important; }
+  .document-imprimable {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: none !important;
+  }
+}

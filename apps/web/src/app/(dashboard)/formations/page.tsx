@@ -1,99 +1,65 @@
-import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import { Plus, BookOpen, Clock, Tag } from 'lucide-react';
+import Link from "next/link";
+import type { Metadata } from "next";
+import { getContexte, estAdmin } from "@/lib/contexte";
+import { fcfa } from "@/lib/format";
+import { NIVEAUX, STATUTS_FORMATION, libelle } from "@/lib/libelles";
+import EnTete from "@/components/ui/EnTete";
+import Vide from "@/components/ui/Vide";
+
+export const metadata: Metadata = { title: "Formations" };
+export const dynamic = "force-dynamic";
 
 export default async function FormationsPage() {
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData.user?.id;
+  const { supabase, role, orgId } = await getContexte();
+  const admin = estAdmin(role);
 
-  let formations: any[] = [];
-  if (userId) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('organisation_id')
-      .eq('id', userId)
-      .single();
-      
-    if (profile?.organisation_id) {
-       const { data } = await supabase
-         .from('formations')
-         .select('*')
-         .eq('organisation_id', profile.organisation_id)
-         .order('created_at', { ascending: false });
-       formations = data || [];
-    }
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case 'published': return <span className="badge badge-success">Publié</span>;
-      case 'archived': return <span className="badge badge-error">Archivé</span>;
-      case 'draft': 
-      default:
-         return <span className="badge badge-warning">Brouillon</span>;
-    }
-  };
+  // La base ne montre aux étudiants que les formations publiées.
+  const { data } = await supabase.from("formations")
+    .select("id, titre, description, categorie, niveau, duree_heures, is_payante, prix, status, sessions(id, status, date_debut, places_restantes)")
+    .eq("organisation_id", orgId ?? "")
+    .order("created_at", { ascending: false });
+  const formations = (data ?? []).filter((f) => admin || f.status === "published");
+  const maintenant = new Date().toISOString();
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-primary gradient-text">Formations</h1>
-          <p className="text-secondary mt-1">Gérez votre catalogue de formations</p>
-        </div>
-        <Link href="/formations/nouveau" className="btn btn-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Nouvelle formation
-        </Link>
-      </div>
+      <EnTete titre={admin ? "Formations" : "Catalogue des formations"}
+        sousTitre={admin ? "Votre catalogue : brouillons, formations publiées et archivées" : "Choisissez une formation puis une session pour demander votre place"}>
+        {admin && <Link href="/formations/nouveau" className="btn btn-primary">+ Nouvelle formation</Link>}
+      </EnTete>
 
       {formations.length === 0 ? (
-        <div className="glass-card p-12 text-center flex flex-col items-center">
-          <div className="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-            <BookOpen className="w-8 h-8 text-secondary" />
-          </div>
-          <h2 className="text-lg font-medium text-primary mb-2">Aucune formation</h2>
-          <p className="text-secondary mb-6">Commencez par créer votre première formation pour votre catalogue.</p>
-          <Link href="/formations/nouveau" className="btn btn-primary">
-            Créer une formation
-          </Link>
-        </div>
+        <Vide icone="🎓" titre={admin ? "Aucune formation" : "Aucune formation publiée"}
+          texte={admin ? "Créez votre première formation, puis publiez-la pour qu'elle apparaisse dans le catalogue des étudiants." : "Le centre n'a pas encore publié de formation. Revenez bientôt."}>
+          {admin && <Link href="/formations/nouveau" className="btn btn-primary">Créer une formation</Link>}
+        </Vide>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {formations.map((formation) => (
-            <div key={formation.id} className="glass-card p-6 flex flex-col hover:border-blue-500/30 transition-colors cursor-pointer group relative">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="font-semibold text-lg text-primary line-clamp-2 group-hover:text-blue-400 transition-colors pr-2">
-                  {formation.titre}
-                </h3>
-                {getStatusBadge(formation.status)}
-              </div>
-              
-              <p className="text-secondary text-sm mb-4 line-clamp-2 flex-grow">
-                {formation.description || 'Aucune description fournie.'}
-              </p>
-              
-              <div className="space-y-3 mt-auto pt-4 border-t border-white/10">
-                <div className="flex items-center text-sm text-secondary">
-                  <Tag className="w-4 h-4 mr-2" />
-                  {formation.categorie || 'Non catégorisé'}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {formations.map((f) => {
+            const ouvertes = (f.sessions ?? []).filter((s) => ["scheduled", "ongoing"].includes(s.status) && s.date_debut >= maintenant.slice(0, 10) && s.places_restantes > 0).length;
+            const st = libelle(STATUTS_FORMATION, f.status);
+            return (
+              <Link key={f.id} href={`/formations/${f.id}`} className="glass-card p-6 flex flex-col hover:border-indigo-500/30 transition-colors group">
+                <div className="flex justify-between items-start gap-2 mb-3">
+                  <h3 className="font-semibold text-lg text-white line-clamp-2 group-hover:text-indigo-300 transition-colors">{f.titre}</h3>
+                  {admin && <span className={`badge ${st.badge} flex-shrink-0`}>{st.label}</span>}
                 </div>
-                <div className="flex items-center text-sm text-secondary">
-                  <Clock className="w-4 h-4 mr-2" />
-                  {formation.duree_heures ? `${formation.duree_heures} heures` : 'Durée non définie'}
+                <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-grow">{f.description || "Aucune description."}</p>
+                <div className="space-y-2 pt-4 border-t border-white/10 text-sm text-slate-400">
+                  <div className="flex justify-between gap-2">
+                    <span>{f.categorie || "Sans catégorie"} · {NIVEAUX[f.niveau ?? "debutant"] ?? "Débutant"}</span>
+                    <span>{f.duree_heures ? `${f.duree_heures} h` : ""}</span>
+                  </div>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className={ouvertes > 0 ? "text-emerald-400" : "text-slate-500"}>
+                      {ouvertes > 0 ? `${ouvertes} session${ouvertes > 1 ? "s" : ""} ouverte${ouvertes > 1 ? "s" : ""}` : "Aucune session ouverte"}
+                    </span>
+                    <span className="font-semibold text-white">{f.is_payante && Number(f.prix) > 0 ? fcfa(f.prix) : "Gratuit"}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center mt-4">
-                  <span className="text-xs px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-secondary capitalize">
-                    {formation.niveau || 'debutant'}
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {formation.is_payante && formation.prix ? `${formation.prix} €` : 'Gratuit'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

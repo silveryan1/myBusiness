@@ -17,9 +17,6 @@ import {
   MessageSquare,
   BarChart2,
   Settings,
-  Building2,
-  UserCog,
-  TrendingUp,
   PenLine,
   LogOut,
 } from "lucide-react";
@@ -30,39 +27,44 @@ interface SidebarProps {
   isOpen?: boolean;
 }
 
+// Uniquement des pages qui existent (avant : liens vers /organisations, /utilisateurs, /statistiques… en 404).
 const navItems = {
   super_admin: [
-    { href: "/dashboard",      icon: LayoutDashboard, label: "Tableau de bord" },
-    { href: "/organisations",  icon: Building2,        label: "Organisations" },
-    { href: "/utilisateurs",   icon: UserCog,          label: "Utilisateurs" },
-    { href: "/statistiques",   icon: TrendingUp,       label: "Statistiques" },
-    { href: "/parametres",     icon: Settings,         label: "Paramètres" },
+    { href: "/dashboard",     icon: LayoutDashboard, label: "Tableau de bord" },
+    { href: "/parametres",    icon: Settings,        label: "Paramètres" },
   ],
   admin: [
     { href: "/dashboard",     icon: LayoutDashboard, label: "Tableau de bord" },
     { href: "/formations",    icon: GraduationCap,   label: "Formations" },
     { href: "/sessions",      icon: CalendarDays,    label: "Sessions" },
-    { href: "/membres",       icon: Users,           label: "Membres" },
     { href: "/inscriptions",  icon: ClipboardList,   label: "Inscriptions" },
-    { href: "/presences",     icon: CheckSquare,     label: "Présences" },
     { href: "/paiements",     icon: CreditCard,      label: "Paiements" },
     { href: "/certificats",   icon: Award,           label: "Certificats" },
+    { href: "/membres",       icon: Users,           label: "Membres" },
+    { href: "/presences",     icon: CheckSquare,     label: "Présences" },
+    { href: "/notes",         icon: PenLine,         label: "Notes" },
     { href: "/messages",      icon: MessageSquare,   label: "Messages" },
     { href: "/rapports",      icon: BarChart2,       label: "Rapports" },
     { href: "/parametres",    icon: Settings,        label: "Paramètres" },
   ],
   formateur: [
     { href: "/dashboard",  icon: LayoutDashboard, label: "Tableau de bord" },
+    { href: "/sessions",   icon: CalendarDays,    label: "Mes sessions" },
     { href: "/presences",  icon: CheckSquare,     label: "Présences" },
     { href: "/notes",      icon: PenLine,         label: "Notes" },
     { href: "/messages",   icon: MessageSquare,   label: "Messages" },
+    { href: "/parametres", icon: Settings,        label: "Paramètres" },
   ],
   etudiant: [
     { href: "/dashboard",    icon: LayoutDashboard, label: "Tableau de bord" },
-    { href: "/formations",   icon: GraduationCap,   label: "Formations" },
+    { href: "/formations",   icon: GraduationCap,   label: "Catalogue" },
     { href: "/inscriptions", icon: ClipboardList,   label: "Mes inscriptions" },
+    { href: "/sessions",     icon: CalendarDays,    label: "Mes sessions" },
+    { href: "/notes",        icon: PenLine,         label: "Mes notes" },
+    { href: "/paiements",    icon: CreditCard,      label: "Mes paiements" },
     { href: "/certificats",  icon: Award,           label: "Mes certificats" },
     { href: "/messages",     icon: MessageSquare,   label: "Messages" },
+    { href: "/parametres",   icon: Settings,        label: "Paramètres" },
   ],
 };
 

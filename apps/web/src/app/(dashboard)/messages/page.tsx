@@ -71,6 +71,11 @@ export default function MessagesPage() {
         )
         .order("created_at");
       setMessages(data || []);
+      // Les messages reçus de ce contact sont maintenant lus.
+      if (data?.some((m) => m.sender_id === contact.id && !m.is_lu)) {
+        await supabase.from("messages").update({ is_lu: true })
+          .eq("sender_id", contact.id).eq("receiver_id", currentUserId).eq("is_lu", false);
+      }
     }
 
     loadMessages();
@@ -82,6 +87,7 @@ export default function MessagesPage() {
         event: "INSERT",
         schema: "public",
         table: "messages",
+        filter: `receiver_id=eq.${currentUserId}`,
       }, () => {
         loadMessages();
       })
@@ -100,16 +106,24 @@ export default function MessagesPage() {
     setSending(true);
 
     const supabase = createClient();
-    await supabase.from("messages").insert({
+    const { error } = await supabase.from("messages").insert({
       organisation_id: orgId,
       sender_id: currentUserId,
       receiver_id: selectedContact.id,
-      contenu: newMessage.trim(),
+      contenu: newMessage.trim().slice(0, 4000),
       type: "direct",
     });
 
-    setNewMessage("");
     setSending(false);
+    if (error) return; // le texte reste dans le champ : rien n'est perdu
+    setNewMessage("");
+    // Le message envoyé apparaît tout de suite (l'abonnement ne suit que les messages reçus).
+    const { data } = await supabase
+      .from("messages")
+      .select("*, sender:profiles!messages_sender_id_fkey(prenom, nom)")
+      .or(`and(sender_id.eq.${currentUserId},receiver_id.eq.${selectedContact.id}),and(sender_id.eq.${selectedContact.id},receiver_id.eq.${currentUserId})`)
+      .order("created_at");
+    setMessages(data || []);
   }
 
   const roleLabel: Record<string, string> = {
@@ -123,9 +137,9 @@ export default function MessagesPage() {
         <p className="text-slate-400 mt-1">Communiquez avec les membres de votre organisation</p>
       </div>
 
-      <div className="grid grid-cols-12 gap-4" style={{ height: "calc(100vh - 220px)", minHeight: "500px" }}>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4" style={{ height: "calc(100dvh - 220px)", minHeight: "420px" }}>
         {/* Contacts */}
-        <div className="col-span-4 glass-card overflow-hidden flex flex-col">
+        <div className={`md:col-span-4 glass-card overflow-hidden flex-col ${selectedContact ? "hidden md:flex" : "flex"}`}>
           <div className="p-4 border-b border-white/5">
             <h2 className="font-semibold text-white text-sm">Contacts</h2>
           </div>
@@ -155,7 +169,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Chat area */}
-        <div className="col-span-8 glass-card overflow-hidden flex flex-col">
+        <div className={`md:col-span-8 glass-card overflow-hidden flex-col ${selectedContact ? "flex" : "hidden md:flex"}`}>
           {!selectedContact ? (
             <div className="flex-1 flex items-center justify-center text-center">
               <div>
@@ -167,6 +181,7 @@ export default function MessagesPage() {
             <>
               {/* Header */}
               <div className="p-4 border-b border-white/5 flex items-center gap-3">
+                <button type="button" onClick={() => setSelectedContact(null)} className="md:hidden btn btn-ghost btn-sm" aria-label="Retour aux contacts">←</button>
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
                   {selectedContact.prenom?.[0]?.toUpperCase()}
                 </div>

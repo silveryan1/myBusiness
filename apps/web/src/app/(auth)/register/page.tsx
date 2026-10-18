@@ -49,7 +49,8 @@ export default function RegisterPage() {
 
     const supabase = createClient();
 
-    // Étape 1 : Créer le compte Supabase (trigger crée le profil de base)
+    // Le nom du centre voyage avec le compte : l'organisation est créée côté serveur à la
+    // première connexion (l'utilisateur est alors identifié par sa session).
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -57,9 +58,9 @@ export default function RegisterPage() {
         data: {
           prenom: form.prenom,
           nom: form.nom,
-          role: "admin",
-          // NE PAS passer organisation_nom ici pour éviter le trigger complexe
+          organisation_nom: form.organisationNom.trim(),
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -69,23 +70,11 @@ export default function RegisterPage() {
       return;
     }
 
-    // Étape 2 : Créer l'organisation via l'API (plus fiable qu'un trigger)
-    if (authData.user) {
-      const res = await fetch("/api/setup-organisation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          organisationNom: form.organisationNom,
-          organisationSlug: form.organisationSlug,
-          userId: authData.user.id,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        console.error("Organisation setup error:", err);
-        // On continue quand même — l'admin pourra configurer son org plus tard
-      }
+    // Confirmation par e-mail désactivée sur le projet : la session existe déjà.
+    if (authData.session) {
+      router.push("/dashboard");
+      router.refresh();
+      return;
     }
 
     setSuccess(true);
@@ -218,34 +207,15 @@ export default function RegisterPage() {
         {step === 2 && (
           <>
             <div>
-              <label className="form-label">Nom de l'organisation</label>
+              <label className="form-label">Nom de votre centre de formation</label>
               <input
                 type="text"
                 value={form.organisationNom}
                 onChange={(e) => updateForm("organisationNom", e.target.value)}
                 className="form-input"
-                placeholder="Centre de Formation Alpha"
+                placeholder="Ex : Centre Excellence Yaoundé"
                 required
               />
-            </div>
-
-            <div>
-              <label className="form-label">Identifiant unique (slug)</label>
-              <div className="flex items-center">
-                <span className="form-input rounded-r-none border-r-0 text-slate-500 text-sm bg-white/[0.02] w-auto px-3 whitespace-nowrap">
-                  mybusiness.app/
-                </span>
-                <input
-                  type="text"
-                  value={form.organisationSlug}
-                  onChange={(e) => updateForm("organisationSlug", e.target.value)}
-                  className="form-input rounded-l-none flex-1"
-                  placeholder="centre-alpha"
-                  required
-                  pattern="[a-z0-9-]+"
-                />
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Lettres minuscules, chiffres et tirets uniquement</p>
             </div>
 
             {error && (

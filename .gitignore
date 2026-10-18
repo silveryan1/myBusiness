@@ -7,3 +7,42 @@ dist/
 *.log
 .DS_Store
 Thumbs.db
+
+# Clés : jamais dans le dépôt (il est public)
+gemini_key.txt
+gemini_model.txt
+*.key
+.env.*
+!.env.example
+
+# Collecte d'épreuves d'examens : outils et PDF d'un AUTRE projet, rangés ici par commodité.
+# Ils ne font pas partie de myBusiness et ne doivent pas être publiés avec lui.
+BEPC_Maths/
+GCE_Corriges/
+GCE_Corriges_Final/
+GCE_Epreuves/
+GCE_KamerPower/
+MINESEC_PDFs/
+README_SUPPRESSION_DOUBLONS.md
+README_TELECHARGEMENT_GCE.md
+README_TRI_EPREUVES.md
+analyze_download.py
+classer_epreuves_gemini.py
+diag_article.py
+explore_*.py
+find_model.py
+find_working_model.py
+inspect_article.py
+interface_gce.pyw
+lancer_classification.bat
+lancer_suppression_doublons.bat
+lancer_telechargement_gce.bat
+supprimer_doublons.py
+telecharger_epreuves_anglophones.py
+test_gemini*.py
+test_new_sdk.py
+__pycache__/
+
+# Archives et caches locaux
+apps/facebook-bot.zip
+*.tsbuildinfo

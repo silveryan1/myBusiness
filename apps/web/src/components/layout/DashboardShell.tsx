@@ -16,9 +16,11 @@ export default function DashboardShell({ profile, children }: DashboardShellProp
   const pathname = usePathname();
 
   // Ferme la sidebar à chaque changement de page
-  useEffect(() => {
+  const [pagePrecedente, setPagePrecedente] = useState(pathname);
+  if (pathname !== pagePrecedente) {
+    setPagePrecedente(pathname);
     setSidebarOpen(false);
-  }, [pathname]);
+  }
 
   // Bloque le scroll du body quand sidebar est ouverte sur mobile
   useEffect(() => {
@@ -51,13 +53,13 @@ export default function DashboardShell({ profile, children }: DashboardShellProp
       />
 
       {/* Contenu principal */}
-      <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
+      <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen print-plein">
         <Header
           profile={profile}
           onMenuToggle={() => setSidebarOpen(prev => !prev)}
           sidebarOpen={sidebarOpen}
         />
-        <main className="flex-1 p-4 lg:p-8">
+        <main className="flex-1 p-4 lg:p-8 print-plein">
           {children}
         </main>
       </div>
